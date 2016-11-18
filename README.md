@@ -46,9 +46,11 @@ To run these examples:
 
 2. Right-click on the Diagrams folder in the top left corner, and select "Import Diagram from XML." Select the XML file from one of the directories, and open the corresponding PDF document to learn more details about the example.
 
-3. Edit the code in each code node to specify the appropriate SAS Viya and CAS server information.
+3. Definie any data sources as necessary for the given example.
 
-4. Right-click on the last node and select "Run" to run the process flow diagram.
+4. Edit the code in each code node to specify the appropriate SAS Viya and CAS server information.
+
+5. Right-click on the last node and select "Run" to run the process flow diagram.
 
 ## Contributors
 
