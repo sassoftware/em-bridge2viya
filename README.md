@@ -1,4 +1,4 @@
-# SAS Enterprise Miner Bridge To Viya
+# SAS Enterprise Miner Bridge To SAS Viya
 This repository contains examples and documentation showing how to run SAS Viya programs from a SAS Enterprise Miner flow. 
 
 ## License
@@ -38,16 +38,13 @@ SAS Enterprise Miner 14.1 and 14.2
 
 ## Instructions
 
-Download (and unzip) or clone this repository. The repository contains one directory for each data mining topic 
-(clustering, survival analysis, and so on). Each directory contains one or more example XML files (diagrams) 
-and associated PDF documentation. 
+Download (and unzip) or clone this repository. The repository contains a directory for the SAS Code node examples (pre-14.2) and the SAS Viya node examples (14.2+). Each directory contains one or more example XML files (diagrams) and associated PDF documentation. 
 
 To run these examples:
 
 1. Create a new Project or open an existing project in SAS Enterprise Miner. 
 
-2. Right-click on the Diagrams folder in the top left corner, and select "Import Diagram from XML." Select the 
-XML file from one of the directories, and open the corresponding PDF document to learn more details about the example.
+2. Right-click on the Diagrams folder in the top left corner, and select "Import Diagram from XML." Select the XML file from one of the directories, and open the corresponding PDF document to learn more details about the example.
 
 3. Edit the code in each code node to specify the appropriate SAS Viya and CAS server information.
 
