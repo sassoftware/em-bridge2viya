@@ -5,6 +5,6 @@ A complete description of this process can be found at https://communities.sas.c
 
 ***
 
-##### Process Flow Diagram Comparing Models;
+##### Process Flow Diagram Comparing Models
 
 ![alt text](../README_imgs/bridgeflow.png "Process Flow Comparing Models from Enterprise Miner 14.1 and SAS Viya")
