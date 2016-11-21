@@ -1,0 +1,1 @@
+This example demonstrates a simple process in which the standard home equity sample data set is used to train models using the HP Regression node in SAS 9.4 and the various modeling procs (NNET, TREESPLIT, and GENSELECT) available in SAS Viya.  An xml file of the corresponding Enterprise Miner diagram is attached for you to import into your project.
