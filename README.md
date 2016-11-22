@@ -44,9 +44,9 @@ To run these examples:
 
 1. Create a new Project or open an existing project in SAS Enterprise Miner. 
 
-2. Right-click on the Diagrams folder in the top left corner, and select "Import Diagram from XML." Select the XML file from one of the directories, and open the corresponding PDF document to learn more details about the example.
+2. Right-click on the Diagrams folder in the top left corner (or use the File menu) and select "Import Diagram from XML...". Select the XML file from one of the directories, and open the corresponding PDF document to learn more details about the example.
 
-3. Definie any data sources as necessary for the given example.
+3. Define any data sources as necessary for the given example.
 
 4. Edit the code in each code node to specify the appropriate SAS Viya and CAS server information.
 
