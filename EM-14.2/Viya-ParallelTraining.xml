@@ -103,7 +103,7 @@
 </EmFileProperties>
 </PROPERTIES>
 </NODE>
-<NODE CLASS="SASHELP.EMCORE.EMCODETOOL.CLASS" COMPONENT="SASViya" ID="Viya" X="554" Y="270" DESCRIPTION="SAS Viya-all models" DIAGRAMID="_ROOT_" PARENTID="" TOOLTYPE="MODEL" TOOLPREFIX="Viya">
+<NODE CLASS="SASHELP.EMCORE.EMCODETOOL.CLASS" COMPONENT="SASViya" ID="Viya" X="553" Y="270" DESCRIPTION="SAS Viya-all models" DIAGRAMID="_ROOT_" PARENTID="" TOOLTYPE="MODEL" TOOLPREFIX="Viya">
 <PROPERTIES UsePriors="Y" ToolType="MODEL" DataNeeded="N" PublishCode="PUBLISH" ScoreCodeFormat="DATASTEP" MetaAdvisor="BASIC" ForceRun="N" intervalCriteria="_MAE_" classCriteria="DEFAULT" SelectionDepth="10" SelectionTable="TRAIN" RunAction="Train" Component="SASViya" Interactive="" CASSessionId="" CASPort="" CASSessRef="" CASHost="">
 <VariableProperties/>
 <EmTargetAttributes>
@@ -141,7 +141,11 @@
 </DecMeta>
 </AMOUNT>
 </EmTargetAttributes>
-<EmVariableAttributes/>
+<EmVariableAttributes>
+<DELTA Variable="AMOUNT" AttributeName="FORMAT" AttributeValue=""/>
+<DELTA Variable="HOMEVAL" AttributeName="FORMAT" AttributeValue=""/>
+<DELTA Variable="INCOME" AttributeName="FORMAT" AttributeValue=""/>
+</EmVariableAttributes>
 <EmFileProperties>
 <USERTRAINCODE Type="EXTERNAL" Extension="sas">
 <Data><![CDATA[
@@ -154,8 +158,8 @@
 *
 *----------------------------------------------------------------*/
  
-   %let caslib  =CASUSER;
-   %let casuser =sasdemo;
+%let caslib  =CASUSER;
+%let casuser =&lt;username&gt;;
  
 /*---------------------------------------------------------------*
 *
@@ -166,15 +170,15 @@
 *
 *----------------------------------------------------------------*/
  
-    %let viyaUser=&lt;username&gt;;
-    %let viyaPwd =&lt;password&gt;; *encode your password with PROC PWENCODE
- 
+%let viyaUser=&lt;username&gt;;
+%let viyaPwd =&lt;password&gt;; *encode your password with PROC PWENCODE;
+
 /*---------------------------------------------------------------*
 *
 * Establish a connection to SASviya machine
 *
 *----------------------------------------------------------------*/
-   %em_viya_signon;
+%em_viya_signon;
  
 /*---------------------------------------------------------------*
 *
@@ -186,7 +190,7 @@
 *
 *----------------------------------------------------------------*/
  
-   %em_viya_dataprep;
+%em_viya_dataprep;
  
 /*---------------------------------------------------------------*
 *
@@ -218,11 +222,10 @@
 *    em_data_fitstat      = Fit Statistic CAS table
 *
 *----------------------------------------------------------------*/
-   %em_register(key=varImportance1, type=DATA);
-   %em_register(key=nnetmodel, type=DATA, cas=y);
+%em_register(key=varImportance1, type=DATA);
+%em_register(key=nnetmodel, type=DATA, cas=y);
  
-   %em_viya_setMacroVars;
- 
+%em_viya_setMacroVars;
  
 /*---------------------------------------------------------------*
 *
@@ -232,66 +235,68 @@
  
 /* Neural Network */
  
-   rsubmit;
-      proc nnet data=&amp;em_casdata;
-         target %em_target /level=&amp;em_dec_level;
-         hidden 3;
-         input %em_interval_input / level=interval;
-         input %em_nominal_input  / level=nominal;
-         train outmodel=&amp;em_user_nnetmodel;
-        architecture MLP;
-         optimization alg=SGD;
-         autotune maxiters=5 maxevals=5 maxtime=200 popsize=2;
-         &amp;em_partition_statement;
-         code file=&quot;&amp;em_file_scorecode&quot;;
-         score out=&amp;em_casout copyvars=(%em_target &amp;em_partitionvar);
-      run;
-   endrsubmit;
-  %em_viya_assess(name=Neural);
+rsubmit;
+   proc nnet data=&amp;em_casdata;
+      target %em_target /level=&amp;em_dec_level;
+      hidden 3;
+      input %em_interval_input / level=interval;
+      input %em_nominal_input  / level=nominal;
+      train outmodel=&amp;em_user_nnetmodel;
+      architecture MLP;
+      optimization alg=SGD;
+      autotune maxiters=5 maxevals=5 maxtime=200 popsize=2;
+      &amp;em_partition_statement;
+      code file=&quot;&amp;em_file_scorecode&quot;;
+      score out=&amp;em_casout copyvars=(%em_target &amp;em_partitionvar);
+   run;
+endrsubmit;
+%em_viya_assess(name=Neural);
  
 /* Genaralized Linear Model */
  
-   rsubmit;
+rsubmit;
  
-proc genselect data=&amp;em_casdata;
-	class %em_nominal_input;
-	model %em_target=%em_interval_input %em_nominal_input / dist=normal;
-	selection method=forward(select=sbc stop=sbc choose=sbc) hierarchy=none;
-   &amp;em_partition_statement;
-	output out=&amp;em_casout xbeta predicted lower upper;
-	code file=&quot;&amp;em_file_scorecode&quot;;
-run;
+   proc genselect data=&amp;em_casdata;
+	   class %em_nominal_input;
+	   model %em_target=%em_interval_input %em_nominal_input / dist=normal;
+	   selection method=forward(select=sbc stop=sbc choose=sbc) hierarchy=none;
+      &amp;em_partition_statement;
+	   output out=&amp;em_casout xbeta predicted lower upper;
+	   code file=&quot;&amp;em_file_scorecode&quot;;
+   run;
  
-   endrsubmit;
-  %em_viya_assess(name=GLM);
+endrsubmit;
  
+%em_viya_assess(name=GLM);
  
 /* Forest */
  
 rsubmit;
-      proc forest data=&amp;em_casdata;
-         target %em_target /level=&amp;em_dec_level;
-         input %em_interval_input / level=interval;
-         input %em_nominal_input  / level=nominal;
-         &amp;em_partition_statement;
-         savestate rstore=&amp;em_data_rstore;
-      run;
-   endrsubmit;
-  %em_viya_assess(name=Forest);
+   proc forest data=&amp;em_casdata;
+      target %em_target /level=&amp;em_dec_level;
+      input %em_interval_input / level=interval;
+      input %em_nominal_input  / level=nominal;
+      &amp;em_partition_statement;
+      savestate rstore=&amp;em_data_rstore;
+   run;
+endrsubmit;
+  
+%em_viya_assess(name=Forest);
  
 /* Gradient Boosting */
  
-   rsubmit;
-proc gradboost data=&amp;em_casdata outmodel=&amp;em_caslib..outmodel seed=1 nTree=10 missing=MACSMALL;
-	target %em_target / level=&amp;em_dec_level;
-   input %em_interval_input / level=interval;
-   input %em_nominal_input  / level=nominal;
-	&amp;em_partition_statement;
-   code file=&quot;&amp;em_file_scorecode&quot;;
-	score out=&amp;em_casout copyvars=(%em_target &amp;em_partitionvar);
-run;
-   endrsubmit;
-  %em_viya_assess(name=GB);
+rsubmit;
+   proc gradboost data=&amp;em_casdata outmodel=&amp;em_caslib..outmodel seed=1 nTree=10 missing=MACSMALL;
+	   target %em_target / level=&amp;em_dec_level;
+      input %em_interval_input / level=interval;
+      input %em_nominal_input  / level=nominal;
+	   &amp;em_partition_statement;
+      code file=&quot;&amp;em_file_scorecode&quot;;
+	   score out=&amp;em_casout copyvars=(%em_target &amp;em_partitionvar);
+   run;
+endrsubmit;
+
+%em_viya_assess(name=GB);
  
 /* Decision Tree */
    rsubmit;
@@ -307,23 +312,23 @@ run;
    endrsubmit;
   %em_viya_assess(name=Tree1);
  
-/* Logistic Regression */
+/* Linear Regression */
  
 rsubmit;
  
-proc regselect data=&amp;em_casdata;
-	class %em_nominal_input;
-	model %em_target=%em_interval_input %em_nominal_input /;
-	selection method=backward (select=sbc stop=sbc choose=sbc) hierarchy=none;
-	output out=&amp;em_casout p=predicted lcl=lcl ucl=ucl;
-	code file=&quot;&amp;em_file_scorecode&quot; pcatall;
-run;
+   proc regselect data=&amp;em_casdata;
+	   class %em_nominal_input;
+	   model %em_target=%em_interval_input %em_nominal_input /;
+	   selection method=backward (select=sbc stop=sbc choose=sbc) hierarchy=none;
+	   output out=&amp;em_casout p=predicted lcl=lcl ucl=ucl;
+	   code file=&quot;&amp;em_file_scorecode&quot;;
+   run;
  
 endrsubmit;
  
 %em_viya_assess(name=LinearRegression);
  
- %em_viya_modelselection;
+%em_viya_modelselection;
  
 /*---------------------------------------------------------------*
 *
@@ -332,9 +337,9 @@ endrsubmit;
 * them from the SAS Viya machine to the EM diagram and node folders.
 *
 *----------------------------------------------------------------*/
-   %em_report(key=varImportance1, viewtype=DATA, description=Variable Importance Tree1,  Block=SAS Viya Reports);
-   %em_report(key=nnetmodel, viewtype=DATA, description=NNET Outmodel,  Block=SAS Viya Reports);
-   %em_viya_report;
+%em_report(key=varImportance1, viewtype=DATA, description=Variable Importance Tree1,  Block=SAS Viya Reports);
+%em_report(key=nnetmodel, viewtype=DATA, description=NNET Outmodel,  Block=SAS Viya Reports);
+%em_viya_report;
  
 /*---------------------------------------------------------------*
 *
@@ -342,7 +347,7 @@ endrsubmit;
 * the connection to the SAS Viya machine
 *
 *----------------------------------------------------------------*/
-   %em_viya_terminate;
+%em_viya_terminate;
  
  
  
@@ -396,7 +401,11 @@ endrsubmit;
 </DecMeta>
 </AMOUNT>
 </EmTargetAttributes>
-<EmVariableAttributes/>
+<EmVariableAttributes>
+<DELTA Variable="AMOUNT" AttributeName="FORMAT" AttributeValue=""/>
+<DELTA Variable="HOMEVAL" AttributeName="FORMAT" AttributeValue=""/>
+<DELTA Variable="INCOME" AttributeName="FORMAT" AttributeValue=""/>
+</EmVariableAttributes>
 <EmFileProperties>
 <USERTRAINCODE Type="EXTERNAL" Extension="sas">
 <Data><![CDATA[
@@ -409,8 +418,8 @@ endrsubmit;
 *
 *----------------------------------------------------------------*/
  
-   %let caslib  =CASUSER;
-   %let casuser =sasdemo;
+%let caslib  =CASUSER;
+%let casuser =&lt;username&gt;;
  
 /*---------------------------------------------------------------*
 *
@@ -421,15 +430,15 @@ endrsubmit;
 *
 *----------------------------------------------------------------*/
  
-    %let viyaUser=&lt;username&gt;;
-    %let viyaPwd =&lt;password&gt;; *encode your password with PROC PWENCODE
+%let viyaUser=&lt;username&gt;;
+%let viyaPwd =&lt;password&gt;; *encode your password with PROC PWENCODE;
  
 /*---------------------------------------------------------------*
 *
 * Establish a connection to SASviya machine
 *
 *----------------------------------------------------------------*/
-   %em_viya_signon;
+%em_viya_signon;
  
 /*---------------------------------------------------------------*
 *
@@ -440,8 +449,7 @@ endrsubmit;
 * em_casLib = macro variable identifying the CAS library
 *
 *----------------------------------------------------------------*/
- 
-   %em_viya_dataprep;
+%em_viya_dataprep;
  
 /*---------------------------------------------------------------*
 *
@@ -473,10 +481,9 @@ endrsubmit;
 *    em_data_fitstat      = Fit Statistic CAS table
 *
 *----------------------------------------------------------------*/
-   %em_register(key=varImportance1, type=DATA);
-   %em_register(key=nnetmodel, type=DATA, cas=y);
+%em_register(key=nnetmodel, type=DATA, cas=y);
  
-   %em_viya_setMacroVars;
+%em_viya_setMacroVars;
  
  
 /*---------------------------------------------------------------*
@@ -487,26 +494,22 @@ endrsubmit;
  
 /* Neural Network */
  
-   rsubmit;
-      proc nnet data=&amp;em_casdata;
-         target %em_target /level=&amp;em_dec_level;
-         hidden 2;
-         input %em_interval_input / level=interval;
-         input %em_nominal_input  / level=nominal;
-         train outmodel=&amp;em_user_nnetmodel;
-        architecture MLP;
-         optimization alg=LBFGS;
-         autotune maxiters=5 maxevals=5 maxtime=200 popsize=2;
-         &amp;em_partition_statement;
-         code file=&quot;&amp;em_file_scorecode&quot;;
-         score out=&amp;em_casout copyvars=(%em_target);
-      run;
-   endrsubmit;
-  %em_viya_assess(name=Neural);
- 
-/* Genaralized Linear Model */
- 
- %em_viya_modelselection;
+rsubmit;
+   proc nnet data=&amp;em_casdata;
+      target %em_target /level=&amp;em_dec_level;
+      hidden 2;
+      input %em_interval_input / level=interval;
+      input %em_nominal_input  / level=nominal;
+      train outmodel=&amp;em_user_nnetmodel;
+      architecture MLP;
+      optimization alg=LBFGS;
+      autotune maxiters=5 maxevals=5 maxtime=200 popsize=2;
+      &amp;em_partition_statement;
+      code file=&quot;&amp;em_file_scorecode&quot;;
+      score out=&amp;em_casout copyvars=(%em_target);
+   run;
+endrsubmit;
+%em_viya_assess(name=Neural);
  
 /*---------------------------------------------------------------*
 *
@@ -515,9 +518,8 @@ endrsubmit;
 * them from the SAS Viya machine to the EM diagram and node folders.
 *
 *----------------------------------------------------------------*/
-   %em_report(key=varImportance1, viewtype=DATA, description=Variable Importance Tree1,  Block=SAS Viya Reports);
-   %em_report(key=nnetmodel, viewtype=DATA, description=NNET Outmodel,  Block=SAS Viya Reports);
-   %em_viya_report;
+%em_report(key=nnetmodel, viewtype=DATA, description=NNET Outmodel,  Block=SAS Viya Reports);
+%em_viya_report;
  
 /*---------------------------------------------------------------*
 *
@@ -525,7 +527,7 @@ endrsubmit;
 * the connection to the SAS Viya machine
 *
 *----------------------------------------------------------------*/
-   %em_viya_terminate;
+%em_viya_terminate;
  
  
  
@@ -542,7 +544,7 @@ endrsubmit;
 </PROPERTIES>
 </NODE>
 <NODE CLASS="SASHELP.EMCORE.EMCODETOOL.CLASS" COMPONENT="SASViya" ID="Viya3" X="554" Y="171" DESCRIPTION="SAS Viya-Linear Regression" DIAGRAMID="_ROOT_" PARENTID="" TOOLTYPE="MODEL" TOOLPREFIX="Viya">
-<PROPERTIES UsePriors="Y" ToolType="MODEL" DataNeeded="N" PublishCode="PUBLISH" ScoreCodeFormat="DATASTEP" MetaAdvisor="BASIC" ForceRun="N" intervalCriteria="DEFAULT" classCriteria="DEFAULT" SelectionDepth="10" SelectionTable="TRAIN" RunAction="Train" Component="SASViya" Interactive="" CASSessionId="" CASPort="" CASSessRef="" CASHost="">
+<PROPERTIES UsePriors="Y" ToolType="MODEL" DataNeeded="N" PublishCode="PUBLISH" ScoreCodeFormat="DATASTEP" MetaAdvisor="BASIC" ForceRun="N" intervalCriteria="DEFAULT" classCriteria="DEFAULT" SelectionDepth="10" SelectionTable="TRAIN" RunAction="Train" Component="SASViya" Interactive="" CASSessionId="" CASPort="" CASSessRef="" CASHost="" NeedRun="Y" LastRunStatus="FAIL" LastRunMessage="exception.server.EMTOOL.RUNTIMEERROR,1012">
 <VariableProperties/>
 <EmTargetAttributes>
 <AMOUNT>
@@ -579,7 +581,11 @@ endrsubmit;
 </DecMeta>
 </AMOUNT>
 </EmTargetAttributes>
-<EmVariableAttributes/>
+<EmVariableAttributes>
+<DELTA Variable="AMOUNT" AttributeName="FORMAT" AttributeValue=""/>
+<DELTA Variable="HOMEVAL" AttributeName="FORMAT" AttributeValue=""/>
+<DELTA Variable="INCOME" AttributeName="FORMAT" AttributeValue=""/>
+</EmVariableAttributes>
 <EmFileProperties>
 <USERTRAINCODE Type="EXTERNAL" Extension="sas">
 <Data><![CDATA[
@@ -591,9 +597,9 @@ endrsubmit;
 * startup code using the em_casHost and em_casPort macro variables.
 *
 *----------------------------------------------------------------*/
-    %let caslib  =CASUSER;
-   %let casuser =sasdemo;
- 
+%let caslib  =CASUSER;
+%let casuser =&lt;username&gt;;
+
 /*---------------------------------------------------------------*
 *
 * Set up the signon information to the SAS Viya Server
@@ -603,16 +609,16 @@ endrsubmit;
 *
 *----------------------------------------------------------------*/
  
-    %let viyaUser=&lt;username&gt;;
-    %let viyaPwd =&lt;password&gt;; *encode your password with PROC PWENCODE
- 
+%let viyaUser=&lt;username&gt;;
+%let viyaPwd =&lt;password&gt;; *encode your password with PROC PWENCODE;
+
 /*---------------------------------------------------------------*
 *
-* Establish a connection to SASviya machine
+* Establish a connection to SAS Viya machine
 *
 *----------------------------------------------------------------*/
-   %em_viya_signon;
- 
+%em_viya_signon;
+
 /*---------------------------------------------------------------*
 *
 * Prepare the training data and upload it to the SAS Viya machine
@@ -623,7 +629,7 @@ endrsubmit;
 *
 *----------------------------------------------------------------*/
  
-   %em_viya_dataprep;
+%em_viya_dataprep;
  
 /*---------------------------------------------------------------*
 *
@@ -655,11 +661,8 @@ endrsubmit;
 *    em_data_fitstat      = Fit Statistic CAS table
 *
 *----------------------------------------------------------------*/
-   %em_register(key=varImportance1, type=DATA);
-   %em_register(key=nnetmodel, type=DATA, cas=y);
- 
-   %em_viya_setMacroVars;
- 
+
+%em_viya_setMacroVars;
  
 /*---------------------------------------------------------------*
 *
@@ -667,7 +670,7 @@ endrsubmit;
 *
 *----------------------------------------------------------------*/
  
-/* Logistic Regression */
+/* Linear Regression */
  
 rsubmit;
  
@@ -676,14 +679,12 @@ proc regselect data=&amp;em_casdata;
 	model %em_target=%em_interval_input %em_nominal_input /;
 	selection method=stepwise (select=sbc stop=sbc choose=sbc) hierarchy=single;
 	output out=&amp;em_casout p=predicted lcl=lcl ucl=ucl;
-	code file=&quot;&amp;em_file_scorecode&quot; pcatall;
+	code file=&quot;&amp;em_file_scorecode&quot;;
 run;
  
 endrsubmit;
  
 %em_viya_assess(name=LinearRegression);
- 
- %em_viya_modelselection;
  
 /*---------------------------------------------------------------*
 *
@@ -692,9 +693,7 @@ endrsubmit;
 * them from the SAS Viya machine to the EM diagram and node folders.
 *
 *----------------------------------------------------------------*/
-   %em_report(key=varImportance1, viewtype=DATA, description=Variable Importance Tree1,  Block=SAS Viya Reports);
-   %em_report(key=nnetmodel, viewtype=DATA, description=NNET Outmodel,  Block=SAS Viya Reports);
-   %em_viya_report;
+%em_viya_report;
  
 /*---------------------------------------------------------------*
 *
@@ -702,7 +701,7 @@ endrsubmit;
 * the connection to the SAS Viya machine
 *
 *----------------------------------------------------------------*/
-   %em_viya_terminate;
+%em_viya_terminate;
  
  
  
