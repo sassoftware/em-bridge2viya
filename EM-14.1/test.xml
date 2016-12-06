@@ -151,7 +151,7 @@
 <Data><![CDATA[
 /*---------------------------------------------------------------*
 *
-* Setup the CAS information
+* Setup the CAS Information
 *
 * Note that the cashost and casport can be specified in the EM project
 * startup code using the em_casHost and em_casPort macro variables.
