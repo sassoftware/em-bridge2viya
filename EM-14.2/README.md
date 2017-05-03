@@ -1,4 +1,4 @@
-##SAS Viya Node in SAS Enterprise Miner 14.2+
+## SAS Viya Node in SAS Enterprise Miner 14.2+
 
 ![alt text](../README_imgs/SASViyaNode.JPG "SAS Viya Node")
 
