@@ -11,13 +11,14 @@ These examples demonstrate how to use the new "SAS Viya" node in Enterprise Mine
 
 Each of the diagrams provided here can be imported into an Enterprise Miner project and executed, given the appropriate SAS Viya and CAS server host/port and logon information.  The code for each node is well documented to guide you through what is taking place at each step.
 
-* **Viya-CompareModels** - demonstrates how models can be trained in SAS Viya and compared with models trained in Enterprise Miner
+* **Viya-CompareModels** - demonstrates how models can be trained in SAS Viya and compared with models trained in Enterprise Miner. See 
+[Comparing Models in SAS Viya Using SAS Enterprise Miner](Comparing%20Models%20in%20SAS%20Viya%20Using%20SAS%20Enterprise%20Miner.pdf).
 
-* **Viya-ParallelTraining** - demonstrates how multiple models can be trained in parallel in SAS Viya and ultimately compared in Enterprise Miner
+* **Viya-ParallelTraining** - demonstrates how multiple models can be trained in parallel in SAS Viya and ultimately compared in Enterprise Miner. See [Parallel Training in SAS Viya Using SAS Enterprise Miner](Parallel%20Training%20in%20SAS%20Viya%20Using%20SAS%20Enterprise%20Miner.pdf).
 
-* **Viya-ScoreSVM_in_EM** - demonstrates how a model trained in SAS Viya can be transferred back and scored in Enterprise Miner
+* **Viya-ScoreSVM_in_EM** - demonstrates how a model trained in SAS Viya can be transferred back and scored in Enterprise Miner. See [Scoring in SAS Viya Using SAS Enterprise Miner](Scoring%20in%20SAS%20Viya%20Using%20SAS%20Enterprise%20Miner.pdf).
 
-* **Viya-Standalone** - demonstrates how this node can be used to simply invoke SAS Viya proc calls on data that already exists in CAS; since it is not using data known to the Enterprise Miner project it cannot be incorporated into a flow
+* **Viya-Standalone** - demonstrates how this node can be used to simply invoke SAS Viya proc calls on data that already exists in CAS; since it is not using data known to the Enterprise Miner project it cannot be incorporated into a flow. See [Running Stand-Alone in SAS Viya](Running%20Stand-Alone%20in%20SAS%20Viya.pdf).
 
 These diagrams are expecting the following macro variables to be provided.  It is suggested that you define these in your Project Start Code (select the project in the navigation tree on the left and edit and run code in the Project Start Code property):
 
