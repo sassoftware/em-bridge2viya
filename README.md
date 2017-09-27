@@ -1,59 +1,30 @@
-![](README_imgs/SAS9toViya.JPG)
+## SAS Viya Node in SAS Enterprise Miner 14.3
 
-# SAS&reg; Enterprise Miner&trade; Bridge To SAS Viya&trade;
-This repository contains examples and documentation showing how to run SAS Viya programs from a SAS Enterprise Miner flow.  It is organized into two main directories of examples: "EM-14.1" for Enterprise Miner version 14.1 and earlier, and "EM-14.2" for examples using a new "SAS Viya" node in Enterprise Miner 14.2 and later.
+![alt text](../README_imgs/SASViyaNode.JPG "SAS Viya Node")
 
-## License
+These examples demonstrate how to use the new "SAS Viya" node in Enterprise Miner 14.3 and later to invoke analytics in SAS Viya from a SAS 9.4-based application like Enterprise Miner. This node serves as a template for the various steps involved in the SAS 9 <--> SAS Viya interaction and provides convenient macros to encapsulate much of the work of 
+* managing the connection and CAS session, 
+* preparing/transferring data,
+* setting macro variables in the SAS Viya environment, 
+* assessing models in SAS Viya, and 
+* processing results.  
 
-Copyright (c) 2016 by SAS Institute Inc., Cary, NC 27513 USA
+Each of the diagrams provided here can be imported into an Enterprise Miner project and executed, given the appropriate CAS server host/port and logon information.  The code for each node is well documented to guide you through what is taking place at each step.
 
-Licensed under the Apache License, Version 2.0 (the "License"); 
-you may not use this file except in compliance with the License. 
-You may obtain a copy of the License at 
+* **Viya-CompareModels** - demonstrates how models can be trained in SAS Viya and compared with models trained in Enterprise Miner. See 
+[Comparing Models in SAS Viya Using SAS Enterprise Miner](Comparing%20Models%20in%20SAS%20Viya%20Using%20SAS%20Enterprise%20Miner.pdf).
 
-   http://www.apache.org/licenses/LICENSE-2.0 
+* **Viya-ParallelTraining** - demonstrates how multiple models can be trained in parallel in SAS Viya and ultimately compared in Enterprise Miner. See [Parallel Training in SAS Viya Using SAS Enterprise Miner](Parallel%20Training%20in%20SAS%20Viya%20Using%20SAS%20Enterprise%20Miner.pdf).
 
-Unless required by applicable law or agreed to in writing, software 
-distributed under the License is distributed on an "AS IS" BASIS, 
-WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. 
-See the License for the specific language governing permissions and 
-limitations under the License.  
+* **Viya-ScoreSVM_in_EM** - demonstrates how a model trained in SAS Viya can be transferred back and scored in Enterprise Miner. See [Scoring in SAS Viya Using SAS Enterprise Miner](Scoring%20in%20SAS%20Viya%20Using%20SAS%20Enterprise%20Miner.pdf).
 
-## Summary
+* **Viya-Standalone** - demonstrates how this node can be used to simply invoke SAS Viya proc calls on data that already exists in CAS; since it is not using data known to the Enterprise Miner project it cannot be incorporated into a flow. See [Running Stand-Alone in SAS Viya](Running%20Stand-Alone%20in%20SAS%20Viya.pdf).
 
-This repository contains example diagrams and materials for using SAS Enterprise Miner to perform data mining.
+These diagrams are expecting the following macro variables to be provided.  It is suggested that you define these in your Project Start Code (select the project in the navigation tree on the left and edit and run code in the Project Start Code property):
 
-The repository includes XML files (which represent SAS Enterprise Miner process flow diagrams) and accompanying PDF files 
-to help guide you through the process flow diagrams.  In SAS Enterprise Miner 14.1 and prior, the SAS Code node is used to invoke the code that connects to SAS Viya and executes the specified code. In SAS Enterprise Miner 14.2, a new dedicated "SAS Viya" node is provided which offers special macros to do much of the work.  This repository contains examples for each.
+```
+%let cashost =<CAS server>;
+%let casport = <CAS server port>;
+```
 
-##### These examples were tested in the following environment:
-
-Windows Server 2008 R2 Enterprise
-
-Dual Intel Xeon E5-2667 @ 2.9 GHz
-
-128 GB RAM 
-
-SAS 9.4 (TS1M3)
-
-SAS Enterprise Miner 14.1 and 14.2
-
-## Instructions
-
-Download (and unzip) or clone this repository. The repository contains a directory for the SAS Code node examples (pre-14.2) and the SAS Viya node examples (14.2+). Each directory contains one or more example XML files (diagrams) and associated PDF documentation. 
-
-To run these examples:
-
-1. Create a new Project or open an existing project in SAS Enterprise Miner. 
-
-2. Right-click on the Diagrams folder in the top left corner (or use the File menu) and select "Import Diagram from XML...". Select the XML file from one of the directories, and open the corresponding PDF document to learn more details about the example.
-
-3. Define any data sources as necessary for the given example.
-
-4. Edit the code in each code node to specify the appropriate SAS Viya and CAS server information.
-
-5. Right-click on the last node and select "Run" to run the process flow diagram.
-
-## Contributors
-
-Jagruti Kanjia, Dominique Latour, Brett Wujek
+Extensive documentation on the SAS Viya Code node, including descriptions of the available properties and macros, can be found in the Enterprise Miner 14.3 Reference Help.  Click on the Help Contents button on the toolbar (or select Contents in the Help menu) and on the Search tab type "Viya".
