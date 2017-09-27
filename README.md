@@ -1,7 +1,7 @@
 ![](README_imgs/SAS9toViya.JPG)
 
 # SAS&reg; Enterprise Miner&trade; Bridge To SAS Viya&trade;
-This repository contains examples and documentation showing how to run SAS Viya programs from a SAS Enterprise Miner flow.  It is organized into two main directories of examples: "EM-14.1" for Enterprise Miner version 14.1 and earlier, and "EM-14.2" for examples using a new "SAS Viya" node in Enterprise Miner 14.2 and later.
+This repository contains examples and documentation showing how to run SAS Viya programs from a SAS Enterprise Miner flow.  It is organized into two main directories of examples: "EM-14.1" for Enterprise Miner version 14.1 and earlier, and "EM-14.2" for examples using a new "SAS Viya" node in Enterprise Miner 14.2, and "EM-14.3" for examples using the SAS Viya node in SAS Enterprise Miner 14.3 and later.
 
 ## License
 
@@ -40,7 +40,7 @@ SAS Enterprise Miner 14.1 and 14.2
 
 ## Instructions
 
-Download (and unzip) or clone this repository. The repository contains a directory for the SAS Code node examples (pre-14.2) and the SAS Viya node examples (14.2+). Each directory contains one or more example XML files (diagrams) and associated PDF documentation. 
+Download (and unzip) or clone this repository. The repository contains a directory for the SAS Code node examples (pre-14.2) and the SAS Viya node examples (14.2 and 14.3+). Each directory contains one or more example XML files (diagrams) and associated PDF documentation. 
 
 To run these examples:
 
@@ -56,4 +56,4 @@ To run these examples:
 
 ## Contributors
 
-Jagruti Kanjia, Dominique Latour, Brett Wujek
+Jagruti Kanjia, Dominique Latour, Brett Wujek, Wendy Czika
