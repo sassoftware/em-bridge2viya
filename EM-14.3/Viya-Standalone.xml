@@ -1,0 +1,204 @@
+<?xml version="1.0" encoding="UTF-8"?><_ROOT_ EMVERSION="14.3" ORIENTATION="HORIZONTAL">
+<Workspace>
+<NODES>
+<NODE CLASS="SASHELP.EMCORE.EMCODETOOL.CLASS" COMPONENT="SASViya" ID="Viya" X="155" Y="135" DESCRIPTION="SAS Viya Standalone example" DIAGRAMID="_ROOT_" PARENTID="" TOOLTYPE="MODEL" TOOLPREFIX="Viya">
+<PROPERTIES UsePriors="Y" ToolType="MODEL" DataNeeded="N" PublishCode="PUBLISH" ScoreCodeFormat="DATASTEP" MetaAdvisor="BASIC" ForceRun="N" intervalCriteria="DEFAULT" classCriteria="DEFAULT" SelectionDepth="10" SelectionTable="TRAIN" RunAction="Train" Component="SASViya" CASPort="" CASHost="" CASSessionId="" CASSessRef="">
+<VariableProperties/>
+<EmTargetAttributes/>
+<EmFileProperties>
+<USERTRAINCODE Type="EXTERNAL" Extension="sas">
+<Data><![CDATA[
+/*---------------------------------------------------------------*
+*
+* Setup the CAS information
+*
+* Note that the casHost and casPort can be specified in the EM project
+* startup code using the em_casHost and em_casPort macro variables.
+*
+*   %let casHost =;
+*   %let casPort =;
+*
+*----------------------------------------------------------------*/
+
+   %let caslib  =;
+   %let casuser =;
+   
+/*---------------------------------------------------------------*
+*
+* Create a CAS session and assign the CAS library.
+*
+*----------------------------------------------------------------*/
+   %em_viya_signon;
+
+/*---------------------------------------------------------------*
+*
+* Prepare the training data and loads it in CAS
+* The em_viya_dataprep macro a CAS library has been
+* assigned.
+* em_casdata= macro variable identifying the training data
+* em_casLib = macro variable identifying the CAS library
+*
+*----------------------------------------------------------------*/
+/*   %em_viya_dataprep;*/
+
+/*---------------------------------------------------------------*
+*
+* Setting up macro variables and macros in SAS Viya
+*
+* Variable Macros:
+*    em_vars              = all variables
+*    em_class             = class variables
+*    em_interval          = interval variables
+*    em_interval_input    = interval inputs
+*    em_binary_input      = binary inputs
+*    em_nominal_input     = nominal inputs
+*    em_ordinal_input     = ordinal inputs
+*    em_interval_rejected = interval rejected
+*    em_binary_rejected   = binary rejected
+*    em_nominal_rejected  = nominal rejected
+*    em_ordinal_rejected  = ordinal rejected
+*    em_id                = id variables
+*    em_key               = key variable
+*
+* Variable:
+*    em_num_vars              = number of variables
+*    em_num_class             = number of class variables
+*    em_num_interval          = number of interval variables
+*    em_num_interval_input    = number of interval inputs
+*    em_num_binary_input      = number of binary inputs
+*    em_num_nominal_input     = number of nominal inputs
+*    em_num_ordinal_input     = number of ordinal inputs
+*    em_num_interval_rejected = number of interval rejected
+*    em_num_binary_rejected   = number of binary rejected
+*    em_num_nominal_rejected  = number of nominal rejected
+*    em_num_ordinal_rejected  = number of ordinal rejected
+*    em_num_id                = number of id variables
+*    em_num_key               = number of key variable
+*    em_partitionvar          = partition variable
+*
+* Target information:
+*    em_dec_target        = target variable
+*    em_dec_level         = measurement level of target variable
+*
+* Utility:
+*
+*    em_partition_statement = partition statement
+*
+* Files:
+*    em_viya_nodedir      = temporary node folder
+*    em_file_scorecode    = score code file
+*    em_file_cdelta_train = metadata file to modify the metadata exported by the node
+*    em_file_odsfile      = ods output file
+*    em_file_astore       = local analytic store file
+*    em_data_rstore       = analytic store CAS table
+*    em_data_viyaroc      = ROC CAS table;
+*    em_data_viyalift     = Lift CAS table;
+*    em_data_viyafitstat  = Fit Statistic CAS table
+*
+*----------------------------------------------------------------*/
+ 
+   %em_register(key=lift, type=DATA);
+   %em_register(key=roc, type=DATA);
+   %em_register(key=fitstat, type=DATA);
+   %em_register(key=modelInfo, type=DATA);
+   %em_register(key=scoreInfo, type=DATA);
+   %em_register(key=iterhist, type=DATA);
+ 
+   %em_viya_setMacroVars;
+ 
+ 
+/*---------------------------------------------------------------*
+*
+* User Code
+*
+*----------------------------------------------------------------*/
+
+/* Upload data to CAS */
+data &amp;em_caslib..cs_accepts2;
+   set sampsio.cs_accepts;
+run;
+
+proc nnet data=&amp;em_casLib..cs_accepts2 ;
+   target gb/level=nominal;
+	input location resid inc car / level=nominal;
+	input age income / level=interval;
+	train outmodel=&amp;em_casLib..outmodel;
+   architecture MLP;
+   hidden 3;
+   optimization alg=SGD;
+	score out=&amp;em_casLib..nnet_score copyvars=(_all_);
+	code file=&quot;&amp;em_file_scorecode&quot;;
+   ods output ModelInfo=&amp;em_user_modelinfo OptIterHistory=&amp;em_user_iterhist ScoreInfo=&amp;em_user_ScoreInfo;
+run;
+ 
+ 
+proc assess data=&amp;em_casLib..nnet_score
+           maxiters=5000
+           epsilon=0.0000001
+           nbins=20
+           ncuts=10
+           ;
+     var P_GB0 ;
+     target GB / event=&quot;0&quot; level=nominal;
+	 fitstat pvar=P_GB1 /  pevent=&quot;1&quot; ;
+	 ods output ROCInfo=&amp;em_user_roc LIFTInfo=&amp;em_user_lift FitStat=&amp;em_user_fitstat;
+run;
+ 
+ 
+/*---------------------------------------------------------------*
+*
+* If the node is a modeling node, you can call the em_viya_assess macro
+* to create assessment results using the ASSESS procedure.  This includes
+* the creation of lift, roc, and fit statistics table when applicable.
+*
+*----------------------------------------------------------------*/
+ 
+/*   %em_viya_assess; */
+ 
+/*---------------------------------------------------------------*
+*
+* The em_viya_report macro processes assessment tables, as
+* well as table and files specified via the em_register macro and downloads
+* them to the EM diagram and node folders.
+*
+*----------------------------------------------------------------*/
+ 
+   %em_report(key=lift, viewtype=DATA, description=ViyaLift,  Block=SAS Viya Reports, autodisplay=Y);
+   %em_report(key=roc, viewtype=DATA, description=ViyaROC,  Block=SAS Viya Reports, autodisplay=Y);
+   %em_report(key=fitstat, viewtype=DATA, description=ViyaFitstat, Block=SAS Viya Reports, autodisplay=Y);
+   %em_report(key=modelInfo, viewtype=DATA, description=Neural Model Information, Block=SAS Viya Reports, autodisplay=Y);
+   %em_report(key=scoreInfo, viewtype=DATA, description=Neural Score Information, Block=SAS Viya Reports, autodisplay=Y);
+   %em_report(key=iterhist, viewtype=DATA, description=Iteration History, Block=SAS Viya Reports, autodisplay=Y);
+   %em_viya_report;
+ 
+ 
+/*---------------------------------------------------------------*
+*
+* The em_viya_terminate macro terminates the CAS session.
+*
+*----------------------------------------------------------------*/
+   %em_viya_terminate;
+ 
+ 
+ 
+ 
+]]>
+</Data>
+</USERTRAINCODE>
+<EMNOTES Type="EXTERNAL" Extension="txt">
+<Data/>
+</EMNOTES>
+</EmFileProperties>
+</PROPERTIES>
+</NODE>
+</NODES>
+<CONNECTIONS/>
+<NOTES>
+<DATA><![CDATA[
+
+
+]]>
+</DATA>
+</NOTES>
+</Workspace>
+</_ROOT_>
