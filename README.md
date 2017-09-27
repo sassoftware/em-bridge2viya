@@ -24,7 +24,7 @@ limitations under the License.
 This repository contains example diagrams and materials for using SAS Enterprise Miner to perform data mining.
 
 The repository includes XML files (which represent SAS Enterprise Miner process flow diagrams) and accompanying PDF files 
-to help guide you through the process flow diagrams.  In SAS Enterprise Miner 14.1 and prior, the SAS Code node is used to invoke the code that connects to SAS Viya and executes the specified code. In SAS Enterprise Miner 14.2, a new dedicated "SAS Viya" node is provided which offers special macros to do much of the work.  This repository contains examples for each.
+to help guide you through the process flow diagrams.  In SAS Enterprise Miner 14.1 and prior, the SAS Code node is used to invoke the code that connects to SAS Viya and executes the specified code. In SAS Enterprise Miner 14.2, a new dedicated "SAS Viya" node is provided which offers special macros to do much of the work.  In SAS Enterprise Miner 14.3, the SAS Viya Code node no longer requires SAS/CONNECT to access the SAS Viya procedures and enables streamlined access to the latest machine learning techniques from within SAS Enterprise Miner.  This repository contains examples for each.
 
 ##### These examples were tested in the following environment:
 
