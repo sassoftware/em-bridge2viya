@@ -1,8 +1,8 @@
-## SAS Viya Node in SAS Enterprise Miner 14.3
+## SAS Viya Code Node in SAS Enterprise Miner 14.3
 
 ![alt text](../README_imgs/SASViyaNode.JPG "SAS Viya Node")
 
-These examples demonstrate how to use the new "SAS Viya" node in Enterprise Miner 14.3 and later to invoke analytics in SAS Viya from a SAS 9.4-based application like Enterprise Miner. This node serves as a template for the various steps involved in the SAS 9 <--> SAS Viya interaction and provides convenient macros to encapsulate much of the work of 
+These examples demonstrate how to use the new "SAS Viya Code" node in Enterprise Miner 14.3 and later to invoke analytics in SAS Viya from a SAS 9.4-based application like Enterprise Miner. This node serves as a template for the various steps involved in the SAS 9 <--> SAS Viya interaction and provides convenient macros to encapsulate much of the work of 
 * managing the connection and CAS session, 
 * preparing/transferring data,
 * setting macro variables in the SAS Viya environment, 
