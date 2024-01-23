@@ -119,7 +119,7 @@
 
    %let caslib  =;
    %let casuser =;
- 
+
 /*---------------------------------------------------------------*
 *
 * Create a CAS session and assign the CAS library.
@@ -127,7 +127,7 @@
 *----------------------------------------------------------------*/
 %em_viya_signon;
 
- 
+
 /*---------------------------------------------------------------*
 *
 * Prepare the training data and loads it in CAS
@@ -138,7 +138,7 @@
 *
 *----------------------------------------------------------------*/
 %em_viya_dataprep;
- 
+
 /*---------------------------------------------------------------*
 *
 * Setting up macro variables and macros in SAS Viya
@@ -194,28 +194,28 @@
 *    em_data_viyafitstat  = Fit Statistic CAS table
 *
 *----------------------------------------------------------------*/
- 
+
 %em_register(key=varImputeInfo, type=DATA);
 %em_register(key=imputeInfo, type=DATA);
 %em_register(key=imputeddata, type=DATA, cas=y);
- 
+
 %em_viya_setMacroVars;
- 
+
  /*---------------------------------------------------------------*
 *
 * User Code
 *
 *----------------------------------------------------------------*/
- 
+
 
    proc varimpute data=&amp;em_casdata;
-	   input %em_interval_input / ctech=mean;
-	   input %em_nominal_input / ctech=median;
-	   output out=&amp;em_user_imputeddata copyvars=(_all_);
+     input %em_interval_input / ctech=mean;
+     input %em_nominal_input / ctech=median;
+     output out=&amp;em_user_imputeddata copyvars=(_all_);
       code file=&quot;&amp;em_file_scorecode&quot;;
-      ods output VarImputeInfo=&amp;em_user_varimputeinfo ImputeInfo=&amp;em_user_imputeinfo;	
+      ods output VarImputeInfo=&amp;em_user_varimputeinfo ImputeInfo=&amp;em_user_imputeinfo;
    run;
- 
+
 /*---------------------------------------------------------------*
 *
 * The em_viya_report macro processes assessment tables, as
@@ -223,14 +223,14 @@
 * them to the EM diagram and node folders.
 *
 *----------------------------------------------------------------*/
- 
+
 %em_report(key=varImputeInfo, viewtype=DATA, description=VARIMPUTE-Variables Imputation Information,  Block=SAS Viya Reports, autodisplay=y);
 %em_report(key=imputeInfo, viewtype=DATA, description=VARIMPUTE-Imputation Information,  Block=SAS Viya Reports, autodisplay=y);
- 
+
 %em_viya_report;
- 
+
 /* Change metadata */
- 
+
 filename _cfref &quot;&amp;EM_FILE_CDELTA_TRAIN&quot;;
 data _null_;
     length string $100;
@@ -248,14 +248,14 @@ filename _cfref;
 * The em_viya_terminate macro terminates the CAS session.
 *
 *----------------------------------------------------------------*/
- 
+
 %em_viya_terminate;
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
 ]]>
 </Data>
 </USERTRAINCODE>
@@ -285,11 +285,11 @@ filename _cfref;
 *
 *----------------------------------------------------------------*/
 
-%let cashost = rdcesx05065.race.sas.com;
+%let cashost = specify_cashost;
 %let casport = 5570;
 
    %let caslib  =CASUSER;
-   %let casuser =qstinst;
+   %let casuser =specify_casuser_id;
 
 /*---------------------------------------------------------------*
 *
@@ -297,7 +297,7 @@ filename _cfref;
 *
 *----------------------------------------------------------------*/
    %em_viya_signon;
- 
+
 /*---------------------------------------------------------------*
 *
 * Prepare the training data and loads it in CAS
@@ -308,7 +308,7 @@ filename _cfref;
 *
 *----------------------------------------------------------------*/
    %em_viya_dataprep;
- 
+
 /*---------------------------------------------------------------*
 *
 * Setting up macro variables and macros in SAS Viya
@@ -367,10 +367,10 @@ filename _cfref;
 
    %em_register(key=varImportance1, type=DATA);
    %em_register(key=varImportance2, type=DATA);
- 
+
    %em_viya_setMacroVars;
- 
- 
+
+
 /*---------------------------------------------------------------*
 *
 * User Code
@@ -392,7 +392,7 @@ filename _cfref;
       run;
 
   %em_viya_assess(name=Neural);
- 
+
 
       proc svmachine data=&amp;em_casdata maxiter=26 noscale usemiss tolerance=1.0E-7 c=1;
          target %em_target /level=&amp;em_dec_level;
@@ -402,7 +402,7 @@ filename _cfref;
       run;
 
   %em_viya_assess(name=SVM);
- 
+
       proc treesplit data=&amp;em_casdata;
          target %em_target /level=&amp;em_dec_level;
          input %em_interval_input / level=interval;
@@ -414,7 +414,7 @@ filename _cfref;
       run;
 
   %em_viya_assess(name=Tree1);
- 
+
       proc treesplit data=&amp;em_casdata maxdepth=5 numbin=8;
          target %em_target /level=&amp;em_dec_level;
          input %em_interval_input / level=interval;
@@ -426,7 +426,7 @@ filename _cfref;
       run;
 
   %em_viya_assess(name=Tree2);
- 
+
 /*---------------------------------------------------------------*
 *
 * If the node is a modeling node, that runs multiple modeling procedures,
@@ -438,7 +438,7 @@ filename _cfref;
 *
 *----------------------------------------------------------------*/
    %em_viya_modelselection;
- 
+
 /*---------------------------------------------------------------*
 *
 * The em_viya_report macro processes assessment tables, as
@@ -450,22 +450,22 @@ filename _cfref;
    %em_report(key=varImportance2, viewtype=DATA, description=Variable Importance Tree2,  Block=SAS Viya Reports);
 
    %em_viya_report;
- 
+
 /*---------------------------------------------------------------*
 *
 * The em_viya_terminate macro terminates the CAS session.
 *
 *----------------------------------------------------------------*/
    %em_viya_terminate;
- 
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
+
 ]]>
 </Data>
 </USERTRAINCODE>

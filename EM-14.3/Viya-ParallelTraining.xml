@@ -238,17 +238,17 @@
 
 %em_register(key=varImportance1, type=DATA);
 %em_register(key=nnetmodel, type=DATA, cas=y);
- 
+
 %em_viya_setMacroVars;
- 
+
 /*---------------------------------------------------------------*
 *
 * User Code
 *
 *----------------------------------------------------------------*/
- 
+
 /* Neural Network */
- 
+
    proc nnet data=&amp;em_casdata;
       target %em_target /level=&amp;em_dec_level;
       hidden 3;
@@ -264,22 +264,22 @@
    run;
 
 %em_viya_assess(name=Neural);
- 
+
 /* Genaralized Linear Model */
- 
+
    proc genselect data=&amp;em_casdata;
-	   class %em_nominal_input;
-	   model %em_target=%em_interval_input %em_nominal_input / dist=normal;
-	   selection method=forward(select=sbc stop=sbc choose=sbc) hierarchy=none;
+     class %em_nominal_input;
+     model %em_target=%em_interval_input %em_nominal_input / dist=normal;
+     selection method=forward(select=sbc stop=sbc choose=sbc) hierarchy=none;
       &amp;em_partition_statement;
-	   output out=&amp;em_casout xbeta predicted lower upper;
-	   code file=&quot;&amp;em_file_scorecode&quot;;
+     output out=&amp;em_casout xbeta predicted lower upper;
+     code file=&quot;&amp;em_file_scorecode&quot;;
    run;
- 
+
 %em_viya_assess(name=GLM);
- 
+
 /* Forest */
- 
+
    proc forest data=&amp;em_casdata;
       target %em_target /level=&amp;em_dec_level;
       input %em_interval_input / level=interval;
@@ -287,22 +287,22 @@
       &amp;em_partition_statement;
       savestate rstore=&amp;em_data_rstore;
    run;
- 
+
 %em_viya_assess(name=Forest);
- 
+
 /* Gradient Boosting */
- 
+
    proc gradboost data=&amp;em_casdata outmodel=&amp;em_caslib..outmodel seed=1 nTree=10 missing=MACSMALL;
-	   target %em_target / level=&amp;em_dec_level;
+     target %em_target / level=&amp;em_dec_level;
       input %em_interval_input / level=interval;
       input %em_nominal_input  / level=nominal;
-	   &amp;em_partition_statement;
+     &amp;em_partition_statement;
       code file=&quot;&amp;em_file_scorecode&quot;;
-	   score out=&amp;em_casout copyvars=(%em_target &amp;em_partitionvar);
+     score out=&amp;em_casout copyvars=(%em_target &amp;em_partitionvar);
    run;
- 
+
 %em_viya_assess(name=GB);
- 
+
 /* Decision Tree */
 
       proc treesplit data=&amp;em_casdata;
@@ -316,21 +316,21 @@
       run;
 
   %em_viya_assess(name=Tree1);
- 
+
 /* Linear Regression */
- 
+
    proc regselect data=&amp;em_casdata;
-	   class %em_nominal_input;
-	   model %em_target=%em_interval_input %em_nominal_input /;
-	   selection method=backward (select=sbc stop=sbc choose=sbc) hierarchy=none;
-	   output out=&amp;em_casout p=predicted lcl=lcl ucl=ucl;
-	   code file=&quot;&amp;em_file_scorecode&quot;;
+     class %em_nominal_input;
+     model %em_target=%em_interval_input %em_nominal_input /;
+     selection method=backward (select=sbc stop=sbc choose=sbc) hierarchy=none;
+     output out=&amp;em_casout p=predicted lcl=lcl ucl=ucl;
+     code file=&quot;&amp;em_file_scorecode&quot;;
    run;
- 
+
 %em_viya_assess(name=LinearRegression);
- 
+
 %em_viya_modelselection;
- 
+
 /*---------------------------------------------------------------*
 *
 * The em_viya_report macro processes assessment tables, as
@@ -341,20 +341,20 @@
 %em_report(key=varImportance1, viewtype=DATA, description=Variable Importance Tree1,  Block=SAS Viya Reports);
 %em_report(key=nnetmodel, viewtype=DATA, description=NNET Outmodel,  Block=SAS Viya Reports);
 %em_viya_report;
- 
+
 /*---------------------------------------------------------------*
 *
 * The em_viya_terminate macro terminates the CAS session.
 *
 *----------------------------------------------------------------*/
 %em_viya_terminate;
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
 ]]>
 </Data>
 </USERTRAINCODE>
@@ -419,11 +419,11 @@
 *
 *----------------------------------------------------------------*/
 
-%let cashost = rdcesx05065.race.sas.com;
+%let cashost = specify_cashost;
 %let casport = 5570;
 
    %let caslib  =CASUSER;
-   %let casuser =qstinst;
+   %let casuser =specify_casuser_id;
 
 /*---------------------------------------------------------------*
 *
@@ -500,18 +500,18 @@
 *----------------------------------------------------------------*/
 
 %em_register(key=nnetmodel, type=DATA, cas=y);
- 
+
 %em_viya_setMacroVars;
- 
- 
+
+
 /*---------------------------------------------------------------*
 *
 * User Code
 *
 *----------------------------------------------------------------*/
- 
+
 /* Neural Network */
- 
+
    proc nnet data=&amp;em_casdata;
       target %em_target /level=&amp;em_dec_level;
       hidden 2;
@@ -534,7 +534,7 @@
 *
 *----------------------------------------------------------------*/
 %em_viya_assess(name=Neural);
- 
+
 /*---------------------------------------------------------------*
 *
 * The em_viya_report macro processes assessment tables, as
@@ -544,20 +544,20 @@
 *----------------------------------------------------------------*/
 %em_report(key=nnetmodel, viewtype=DATA, description=NNET Outmodel,  Block=SAS Viya Reports);
 %em_viya_report;
- 
+
 /*---------------------------------------------------------------*
 *
 * The em_viya_terminate macro terminates the CAS session.
 *
 *----------------------------------------------------------------*/
 %em_viya_terminate;
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
 ]]>
 </Data>
 </USERTRAINCODE>
@@ -621,11 +621,11 @@
 *
 *----------------------------------------------------------------*/
 
-%let cashost = rdcesx05065.race.sas.com;
+%let cashost = specify_cashost;
 %let casport = 5570;
 
    %let caslib  =CASUSER;
-   %let casuser =qstinst;
+   %let casuser =specify_casuser_id;
 
 /*---------------------------------------------------------------*
 *
@@ -701,7 +701,7 @@
 *
 *----------------------------------------------------------------*/
     %em_register(key=regfitstats, type=DATA);
-   
+
  %em_viya_setmacrovars;
 
 /*---------------------------------------------------------------*
@@ -709,18 +709,18 @@
 * User Code
 *
 *----------------------------------------------------------------*/
- 
+
 /* Linear Regression */
- 
+
 proc regselect data=&amp;em_casdata;
-	class %em_nominal_input;
-	model %em_target=%em_interval_input %em_nominal_input /;
-	selection method=stepwise (select=sbc stop=sbc choose=sbc) hierarchy=single;
-	output out=&amp;em_casout p=predicted lcl=lcl ucl=ucl;
-	code file=&quot;&amp;em_file_scorecode&quot;;
+  class %em_nominal_input;
+  model %em_target=%em_interval_input %em_nominal_input /;
+  selection method=stepwise (select=sbc stop=sbc choose=sbc) hierarchy=single;
+  output out=&amp;em_casout p=predicted lcl=lcl ucl=ucl;
+  code file=&quot;&amp;em_file_scorecode&quot;;
 ods output FitStatistics=&amp;em_user_regfitstats;
 run;
- 
+
 /*---------------------------------------------------------------*
 *
 * If the node is a modeling node, you can call the em_viya_assess macro
@@ -729,7 +729,7 @@ run;
 *
 *----------------------------------------------------------------*/
 %em_viya_assess;
- 
+
 /*---------------------------------------------------------------*
 *
 * The em_viya_report macro processes assessment tables, as
@@ -740,21 +740,21 @@ run;
    %em_report(key=regfitstats, viewtype=DATA, description=Variable Importance Tree1,  Block=SAS Viya Reports);
 
 %em_viya_report;
- 
+
 /*---------------------------------------------------------------*
 *
 * The em_viya_terminate macro terminates the CAS session.
 *
 *----------------------------------------------------------------*/
 %em_viya_terminate;
- 
- 
- 
- 
- 
- 
- 
- 
+
+
+
+
+
+
+
+
 ]]>
 </Data>
 </USERTRAINCODE>
